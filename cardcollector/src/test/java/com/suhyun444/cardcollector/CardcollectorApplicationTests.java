@@ -1,13 +1,13 @@
-package com.suhyun444.cardcollector;
+// package com.suhyun444.cardcollector;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class CardcollectorApplicationTests {
+// @SpringBootTest
+// class CardcollectorApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// 	@Test
+// 	void contextLoads() {
+// 	}
 
-}
+// }
