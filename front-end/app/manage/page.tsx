@@ -141,9 +141,19 @@ export default function DataManagementPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="import-file">Import Data</Label>
-                    <Input id="import-file" type="file" accept=".xls, .xlsx" onChange={handleImport} className="mt-1" />
-                    <p className="text-xs text-muted-foreground mt-1">Import transactions from a Excel file</p>
+                    <Label>Import Data</Label>
+                    <div className="mt-1">
+                      <input id="import-file" type="file" accept=".xls, .xlsx" onChange={handleImport} className="hidden" />
+                      <Button
+                        onClick={() => document.getElementById("import-file")?.click()}
+                        variant="outline"
+                        className="w-full bg-transparent"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import Data
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Import transactions from a JSON file</p>
                   </div>
 
                   <Button onClick={handleExport} variant="outline" className="w-full bg-transparent">
