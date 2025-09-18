@@ -44,7 +44,7 @@ export default function PaymentHistoryPage() {
   const month = date.getMonth() + 1;
 
   try {
-    const response = await fetch(`/api/payments?year=${year}&month=${month}`);
+    const response = await fetch(`/api/transactions/get?year=${year}&month=${month}`);
     if (!response.ok) throw new Error("Failed to fetch transactions");
     const data = await response.json();
     console.log(data);
