@@ -80,16 +80,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setCategories((prev) => [...prev, transaction.category].sort())
     }
   }
-
   const updateTransaction = (id: string, updates: Partial<PaymentTransaction>) => {
-    setTransactions((prev) =>
-      prev.map((transaction) => (transaction.id === id ? { ...transaction, ...updates } : transaction)),
-    )
+  setTransactions((prev) =>
+    prev.map((transaction) => (transaction.id === id ? { ...transaction, ...updates } : transaction)),
+  )
 
-    if (updates.category && !categories.includes(updates.category)) {
-      setCategories((prev) => [...prev, updates.category].sort())
-    }
+  // 1. 변수에 category 값을 먼저 할당합니다.
+  const newCategory = updates.category;
+
+  // 2. 해당 변수가 string 타입인지 명확하게 확인합니다.
+  if (newCategory && typeof newCategory === 'string' && !categories.includes(newCategory)) {
+    // if 블록 안에서 newCategory는 이제 확실한 string 타입입니다.
+    setCategories((prev) => [...prev, newCategory].sort())
   }
+}
+
 
   const deleteTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((transaction) => transaction.id !== id))

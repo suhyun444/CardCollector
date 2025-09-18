@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,9 @@ export default function PaymentHistoryPage() {
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
 
+  useEffect(() => {
+    fetchTransactions(currentDate);
+  }, []);
 
   const fetchTransactions = async (date: Date) => {
   const year = date.getFullYear();
@@ -44,6 +47,7 @@ export default function PaymentHistoryPage() {
     const response = await fetch(`/api/payments?year=${year}&month=${month}`);
     if (!response.ok) throw new Error("Failed to fetch transactions");
     const data = await response.json();
+    console.log(data);
     importTransactions(data); // 백엔드에서 받은 데이터로 업데이트
   } catch (error) {
     console.error(error);
