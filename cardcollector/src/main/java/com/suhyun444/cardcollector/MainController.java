@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.suhyun444.cardcollector.DTO.PaymentStatus;
+import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
+import com.suhyun444.cardcollector.DTO.TransactionResponseDto;
+import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
+import com.suhyun444.cardcollector.Parser.TransactionParser;
+
 @Controller
 public class MainController {
 
@@ -57,44 +63,20 @@ public class MainController {
         return paymentDtos;   
 	}
      
-    //TODO Front에서 보낸 Excel파일 받아서 처리하기
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "File is empty"));
         }
-
-        List<TransactionRequestDto> transactions = new ArrayList<>();
-        DataFormatter dataFormatter = new DataFormatter();
+        TransactionParser parser = new KookminTransactionParser();
+        List<TransactionRequestDto> transactions;
 
         try (InputStream is = file.getInputStream();
              Workbook workbook = WorkbookFactory.create(is)) {
 
             Sheet sheet = workbook.getSheetAt(0);
-
-            for (int i = 4; i <= sheet.getLastRowNum() - 1; i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
-                if(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(4)).replaceAll(",","")) == 0) continue;
-                TransactionRequestDto dto = new TransactionRequestDto();
-
-                dto.setDate(dataFormatter.formatCellValue(row.getCell(0)));
-                dto.setMerchant(dataFormatter.formatCellValue(row.getCell(2)));
-
-                String withdrawalStr = dataFormatter.formatCellValue(row.getCell(4)).replaceAll(",", "");
-                dto.setAmount(Integer.parseInt(withdrawalStr));
-
-                dto.setPaymentMethod(dataFormatter.formatCellValue(row.getCell(7)));
-                transactions.add(dto);
-            }
-
-            for(int i=0;i<transactions.size();++i)
-            {
-                System.out.println(transactions.get(i).getDate() + " " + transactions.get(i).getMerchant() + " " + transactions.get(i).getAmount() + " " + transactions.get(i).getPaymentMethod());
-            }
-
-            //TODO db에 저장해주기
+            transactions = parser.Parse(sheet);
             return ResponseEntity.ok(Map.of("transactions", transactions));
 
         } catch (Exception e) {
