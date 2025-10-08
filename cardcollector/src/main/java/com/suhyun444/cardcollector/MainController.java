@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +24,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
 import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.DTO.TransactionResponseDto;
+import com.suhyun444.cardcollector.Entity.Transaction;
 import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
 import com.suhyun444.cardcollector.Parser.TransactionParser;
 
 @Controller
 public class MainController {
+
+    @Autowired
+    private TransactionService transactionService;
 
     @GetMapping("/")
     public String serveRoot() {
@@ -66,19 +72,13 @@ public class MainController {
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "File is empty"));
-        }
-        TransactionParser parser = new KookminTransactionParser();
-        List<TransactionRequestDto> transactions;
-
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = WorkbookFactory.create(is)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            transactions = parser.Parse(sheet);
+      try {
+            List<TransactionRequestDto> transactions = transactionService.uploadAndParseExcel(file);
+            
             return ResponseEntity.ok(Map.of("transactions", transactions));
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("message", "Failed to parse Excel file"));
