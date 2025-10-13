@@ -6,16 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.suhyun444.cardcollector.DTO.MerchantCategoryDto;
@@ -23,6 +19,8 @@ import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.Entity.Transaction;
 import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
 import com.suhyun444.cardcollector.Parser.TransactionParser;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionService {
@@ -35,6 +33,7 @@ public class TransactionService {
         this.transactionCategorizer = transactionCategorizer;
     }
 
+    @Transactional
     public List<TransactionRequestDto> uploadAndParseExcel(MultipartFile file) throws Exception
     {
         TransactionParser parser = new KookminTransactionParser();
@@ -54,9 +53,8 @@ public class TransactionService {
 
                 
             importTransactions(transactions);
-            //change into dto
-            List<TransactionRequestDto> temp = new ArrayList<>();
-            return temp;
+            List<TransactionRequestDto> result = transactionRepository.findAll().stream().map(TransactionRequestDto::from).collect(Collectors.toList());
+            return result;
         }
     }
     private void importTransactions(List<Transaction> transactions)
@@ -72,7 +70,7 @@ public class TransactionService {
                                             .collect(Collectors.toList());
 
         transactionRepository.saveAll(newTransactions);
-        return;
+        return ;
     }
     private void categorizeTransactions(List<Transaction> transactions) {
         List<String> uniqueMerchants = transactions.stream().map(Transaction::getMerchant).distinct().collect(Collectors.toList());

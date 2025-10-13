@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.*;
 
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
-import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.Entity.Transaction;
 
 public class KookminTransactionParser extends TransactionParser {

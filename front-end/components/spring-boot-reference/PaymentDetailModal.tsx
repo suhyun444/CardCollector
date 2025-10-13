@@ -75,9 +75,9 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("ko-KR", {
       style: "currency",
-      currency: "USD",
+      currency: "KRW",
     }).format(amount)
   }
 

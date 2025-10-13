@@ -39,7 +39,7 @@ export default function HomePage() {
                 transaction.
               </p>
               <Link href="/history">
-                <Button className="w-full">
+                <Button className="w-full bg-transparent" variant="outline">
                   <CreditCard className="h-4 w-4 mr-2" />
                   View Payment History
                 </Button>

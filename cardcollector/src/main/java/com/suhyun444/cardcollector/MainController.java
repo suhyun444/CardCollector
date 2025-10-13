@@ -5,14 +5,11 @@
  */
 package com.suhyun444.cardcollector;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
 import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.DTO.TransactionResponseDto;
-import com.suhyun444.cardcollector.Entity.Transaction;
-import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
-import com.suhyun444.cardcollector.Parser.TransactionParser;
 
 @Controller
 public class MainController {
@@ -47,34 +41,12 @@ public class MainController {
         return "forward:/index.html";
         
     }
-    @GetMapping("/api/transactions/get")
-    @ResponseBody
-    public List<TransactionResponseDto> getTransactions(
-            @RequestParam("year") int year,
-            @RequestParam("month") int month) {
-        
-        // 예시: DB 조회 로직 (JPA 기준)
-		List<TransactionResponseDto> paymentDtos = new ArrayList<>();
-		paymentDtos.add(new TransactionResponseDto("0", "2025-09-01", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("1", "2025-09-02", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("2", "2025-09-03", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("3", "2025-09-04", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("4", "2025-09-05", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("5", "2025-09-06", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("6", "2025-09-07", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("7", "2025-09-08", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("8", "2025-09-09", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		paymentDtos.add(new TransactionResponseDto("9", "2025-09-10", "Amazon", 100, "Shopping", "buyitems", PaymentStatus.completed, "Credit Card ****1234"));
-		System.out.println("ImportPayments");
-        return paymentDtos;   
-	}
      
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file) {
       try {
             List<TransactionRequestDto> transactions = transactionService.uploadAndParseExcel(file);
-            
             return ResponseEntity.ok(Map.of("transactions", transactions));
 
         } catch (IllegalArgumentException e) {

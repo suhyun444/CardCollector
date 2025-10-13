@@ -1,7 +1,6 @@
 package com.suhyun444.cardcollector;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +13,7 @@ import com.suhyun444.cardcollector.Entity.Transaction;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction,Long>{
-    @Query("SELECT new com.suhyun444.cardcollector.dto.MerchantCategoryDto(t.merchant, t.category) " +
+    @Query("SELECT new com.suhyun444.cardcollector.DTO.MerchantCategoryDto(t.merchant, t.category) " +
            "FROM Transaction t " +
            "WHERE t.merchant IN :merchants " +
            "ORDER BY t.date DESC")
