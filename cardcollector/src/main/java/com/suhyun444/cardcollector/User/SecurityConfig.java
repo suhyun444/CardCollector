@@ -30,8 +30,8 @@ public class SecurityConfig {
             .httpBasic(httpBasic -> httpBasic.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login/**","/oauth2/**","/login/oauth2/**" ).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers( "/","/login/**","/oauth2/**","/login/oauth2/**","/static/**", "/*.ico", "/*.js", "/*.css", "/_next/**" ).permitAll()
+                .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))

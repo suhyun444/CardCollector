@@ -22,25 +22,48 @@ import com.suhyun444.cardcollector.DTO.PaymentStatus;
 import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.DTO.TransactionResponseDto;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Controller
 public class MainController {
 
     @Autowired
     private TransactionService transactionService;
 
+    @GetMapping({"/login/google"})
+    public String start()
+    {
+        return "redirect:/oauth2/authorization/google";
+    }
+    
     @GetMapping("/")
     public String serveRoot() {
         System.out.println("Root access");
         return "forward:/index.html";
     }
-
-    @GetMapping(value = {"/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}",
-                         "/**/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}"})
-    public String redirect() {
-        System.out.println("Main Screen");
-        return "forward:/index.html";
+    @GetMapping(value = "/**/{path:[^\\.]*}")
+    public String forward(HttpServletRequest request) {
+        // 요청된 URL 경로를 가져옵니다 (예: "/login/success")
+        String path = request.getRequestURI();
         
+        // 해당 경로에 .html을 붙여서 정적 파일로 포워딩합니다.
+        // 예: "/login/success" -> "/login/success.html"
+        return "forward:" + path + ".html";
     }
+    // @GetMapping("login/success")
+    // public String serveLoginSuccess()
+    // {
+    //     System.out.println("login success screen");
+    //     return "forward:/index.html";
+    // }
+
+    // @GetMapping(value = {"/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}",
+    //                      "/**/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}"})
+    // public String redirect() {
+    //     System.out.println("Main Screen");
+    //     return "forward:/index.html";
+        
+    // }
      
     @PostMapping("api/transactions/upload")
     @ResponseBody

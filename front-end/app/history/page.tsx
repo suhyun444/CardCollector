@@ -36,23 +36,9 @@ export default function PaymentHistoryPage() {
   const [newCategoryName, setNewCategoryName] = useState("")
 
   useEffect(() => {
-    fetchTransactions(currentDate);
+      setCurrentDate(currentDate);
   }, []);
 
-  const fetchTransactions = async (date: Date) => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-
-  try {
-    const response = await fetch(`/api/transactions/get?year=${year}&month=${month}`);
-    if (!response.ok) throw new Error("Failed to fetch transactions");
-    const data = await response.json();
-    console.log(data);
-    importTransactions(data); // 백엔드에서 받은 데이터로 업데이트
-  } catch (error) {
-    console.error(error);
-  }
-};
 
   const navigateMonth = (direction: "prev" | "next") => {
     const newDate = new Date(currentDate)
@@ -62,7 +48,6 @@ export default function PaymentHistoryPage() {
       newDate.setMonth(newDate.getMonth() + 1)
     }
     setCurrentDate(newDate)
-    fetchTransactions(newDate);
   }
 
   const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`
