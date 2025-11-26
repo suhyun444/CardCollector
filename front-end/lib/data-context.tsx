@@ -3,6 +3,8 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { mockTransactions, type PaymentTransaction } from "./mock-data"
+import { useRouter, usePathname } from "next/navigation" 
+import { api } from "@/lib/api"
 
 interface DataContextType {
   transactions: PaymentTransaction[]
@@ -23,7 +25,34 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
   const [categories, setCategories] = useState<string[]>([])
 
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+
   useEffect(() => {
+    console.log("Check user login")
+    const checkLogin = async () => {
+      if (pathname.startsWith("/login") || pathname.startsWith("/oauth2")) {
+        setIsAuthChecked(true)
+        return
+      }
+
+      try {
+        console.log("DataProvider: Checking login status...")
+        await api.get("/api/user/me")
+        
+        console.log("DataProvider: Login verified.")
+        setIsAuthChecked(true)
+      } catch (error) {
+        console.error("DataProvider: Login check failed, redirecting...", error)
+        router.push("/login/google")
+      }
+    }
+
+    checkLogin()
+  }, [pathname, router])
+  useEffect(() => {
+    console.log("load saveData")
     const savedData = localStorage.getItem("payment-history-data")
     const savedCategories = localStorage.getItem("payment-categories")
 
@@ -130,7 +159,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("payment-history-data")
     localStorage.removeItem("payment-categories")
   }
-
+  if (!isAuthChecked) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-lg">Checking login status...</div>
+      </div>
+    )
+  }
   return (
     <DataContext.Provider
       value={{

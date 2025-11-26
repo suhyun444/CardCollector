@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { DataProvider } from "@/lib/data-context"
+import ToastProvider from "@/components/ToastProvider"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
         <DataProvider>
           <Suspense fallback={null}>{children}</Suspense>
         </DataProvider>
+        <ToastProvider/>
         <Analytics />
       </body>
     </html>

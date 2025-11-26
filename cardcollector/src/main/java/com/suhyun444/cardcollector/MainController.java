@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,20 +44,10 @@ public class MainController {
     }
     @GetMapping(value = "/**/{path:[^\\.]*}")
     public String forward(HttpServletRequest request) {
-        // 요청된 URL 경로를 가져옵니다 (예: "/login/success")
         String path = request.getRequestURI();
         
-        // 해당 경로에 .html을 붙여서 정적 파일로 포워딩합니다.
-        // 예: "/login/success" -> "/login/success.html"
         return "forward:" + path + ".html";
     }
-    // @GetMapping("login/success")
-    // public String serveLoginSuccess()
-    // {
-    //     System.out.println("login success screen");
-    //     return "forward:/index.html";
-    // }
-
     // @GetMapping(value = {"/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}",
     //                      "/**/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}"})
     // public String redirect() {
@@ -64,7 +55,15 @@ public class MainController {
     //     return "forward:/index.html";
         
     // }
-     
+    
+    @GetMapping("api/user/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Object principal) {
+        
+        return ResponseEntity.ok(Map.of(
+            "message", "Logged in successfully",
+            "user", principal // 사용자 ID 또는 정보 반환
+        ));
+    }
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file) {

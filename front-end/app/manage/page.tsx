@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useData } from "@/lib/data-context"
+import { api } from "@/lib/api"
 import { ArrowLeft, Upload, Download, Trash2, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from 'react-toastify'
 
 export default function DataManagementPage() {
   const { transactions, exportTransactions, importTransactions, clearAllData } = useData()
-  const { toast } = useToast()
 
   const handleExport = () => {
     const dataStr = exportTransactions()
@@ -26,10 +26,7 @@ export default function DataManagementPage() {
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast({
-      title: "Data Exported",
-      description: "Your payment history has been exported successfully.",
-    })
+    
   }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,26 +37,19 @@ export default function DataManagementPage() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/transactions/upload", { // 백엔드로 전송
-        method: "POST",
-        body: formData,
-      });
-      if(response.ok)
-      {
-        //transactions 업데이트
-      }
+      const data = await api.post("/api/transactions/upload", formData);
+      console.log(data.transactions);
+      importTransactions(data.transactions);
+      toast.success("Import complete.")
     } catch (error) {
-      // ... error handling
+      toast.error("Import failed.")
     }
   }
 
   const handleClearData = () => {
     if (window.confirm("Are you sure you want to delete all transaction data? This action cannot be undone.")) {
       clearAllData()
-      toast({
-        title: "Data Cleared",
-        description: "All transaction data has been deleted.",
-      })
+      toast.success("Data Cleared")
     }
   }
 

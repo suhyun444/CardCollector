@@ -27,6 +27,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
     }
+    
 
     /**
      * 사용자 정보를 받아 JWT를 생성합니다. (토큰 발급)
