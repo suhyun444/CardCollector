@@ -17,24 +17,29 @@ import org.springframework.web.multipart.MultipartFile;
 import com.suhyun444.cardcollector.DTO.MerchantCategoryDto;
 import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
 import com.suhyun444.cardcollector.Entity.Transaction;
+import com.suhyun444.cardcollector.Entity.User;
 import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
 import com.suhyun444.cardcollector.Parser.TransactionParser;
+import com.suhyun444.cardcollector.User.UserRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionService {
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
     private final TransactionCategorizer transactionCategorizer;
 
     public TransactionService(TransactionRepository transactionRepository,
+                              UserRepository userRepository,
                               TransactionCategorizer transactionCategorizer) {
         this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
         this.transactionCategorizer = transactionCategorizer;
     }
 
     @Transactional
-    public List<TransactionRequestDto> uploadAndParseExcel(MultipartFile file) throws Exception
+    public List<TransactionRequestDto> uploadAndParseExcel(MultipartFile file, String email) throws Exception
     {
         TransactionParser parser = new KookminTransactionParser();
         List<Transaction> transactions;
@@ -43,21 +48,20 @@ public class TransactionService {
         }
 
         try (InputStream is = file.getInputStream();
-             Workbook workbook = WorkbookFactory.create(is)) {
+            Workbook workbook = WorkbookFactory.create(is)) {
             
             Sheet sheet = workbook.getSheetAt(0);
-            
             transactions = parser.parse(sheet);
-            
             categorizeTransactions(transactions);
-
-                
-            importTransactions(transactions);
+            
+            User user = userRepository.findByEmail(email).orElseThrow();
+            
+            importTransactions(transactions,user);
             List<TransactionRequestDto> result = transactionRepository.findAll().stream().map(TransactionRequestDto::from).collect(Collectors.toList());
             return result;
         }
     }
-    private void importTransactions(List<Transaction> transactions)
+    private void importTransactions(List<Transaction> transactions,User user)
     {
         List<String> keys = transactions.stream()
             .map(Transaction::getTransactionKey)
@@ -68,7 +72,7 @@ public class TransactionService {
         List<Transaction> newTransactions = transactions.stream()
                                             .filter(transaction->!existingKeys.contains(transaction.getTransactionKey()))
                                             .collect(Collectors.toList());
-
+        newTransactions.forEach(t->t.setUser(user));
         transactionRepository.saveAll(newTransactions);
         return ;
     }

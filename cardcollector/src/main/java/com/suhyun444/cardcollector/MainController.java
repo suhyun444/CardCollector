@@ -12,6 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,9 +67,11 @@ public class MainController {
     }
     @PostMapping("api/transactions/upload")
     @ResponseBody
-    public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file, 
+                                                        @AuthenticationPrincipal String email) {
       try {
-            List<TransactionRequestDto> transactions = transactionService.uploadAndParseExcel(file);
+
+            List<TransactionRequestDto> transactions = transactionService.uploadAndParseExcel(file,email);
             return ResponseEntity.ok(Map.of("transactions", transactions));
 
         } catch (IllegalArgumentException e) {
