@@ -32,7 +32,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // JWT 생성 및 리디렉션 로직은 동일
         String token = jwtTokenProvider.generateToken(user);
-        String targetUrl = UriComponentsBuilder.fromUriString("https://fantastic-space-spoon-g67gp4p99p4c9pr9-8080.app.github.dev/login/success")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://pkfp7b53-8080.asse.devtunnels.ms/login/success")
                 .queryParam("token", token)
                 .build().toUriString();
         

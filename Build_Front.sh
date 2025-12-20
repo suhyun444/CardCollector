@@ -1,8 +1,9 @@
 cd front-end
-sudo rm -rf .next out
+rm -rf .next 
+rm -rf out
 npx next build
-sudo rm -rf ../cardcollector/src/main/resources/static/*
-sudo cp -r out/* ../cardcollector/src/main/resources/static/
+rm -rf ../cardcollector/src/main/resources/static/*
+cp -r out/* ../cardcollector/src/main/resources/static/
 cd ..
 cd cardcollector
 ./gradlew processResources

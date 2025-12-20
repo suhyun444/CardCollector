@@ -49,13 +49,6 @@ public class MainController {
         
         return "forward:" + path + ".html";
     }
-    // @GetMapping(value = {"/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}",
-    //                      "/**/{path:^(?!api$|index\\.html$|assets/.*|static/.*|favicon\\.ico$).*}"})
-    // public String redirect() {
-    //     System.out.println("Main Screen");
-    //     return "forward:/index.html";
-        
-    // }
     
     @GetMapping("api/user/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Object principal) {

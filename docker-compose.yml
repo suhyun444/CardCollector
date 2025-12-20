@@ -4,7 +4,7 @@ services:
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: calender
+      MYSQL_DATABASE: cardcollector
       MYSQL_USER: suhyun444
       MYSQL_PASSWORD: suhyun
     ports:

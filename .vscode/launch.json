@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CardcollectorApplication",
+            "request": "launch",
+            "mainClass": "com.suhyun444.cardcollector.CardcollectorApplication",
+            "projectName": "cardcollector",
+            "envFile": "${workspaceFolder}/secrets.env"
+        }
+    ]
+}

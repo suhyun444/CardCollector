@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://fantastic-space-spoon-g67gp4p99p4c9pr9-8080.app.github.dev';
+const API_BASE_URL = 'https://pkfp7b53-8080.asse.devtunnels.ms';
 
 const request = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('accessToken');
