@@ -14,7 +14,7 @@ public class KookminTransactionParser extends TransactionParser {
         List<Transaction> transactions = new ArrayList<>();
 
         DataFormatter dataFormatter = new DataFormatter();
-        for (int i = 4; i <= sheet.getLastRowNum() - 1; i++) {
+        for (int i = 5; i <= sheet.getLastRowNum() - 1; i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
             if(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(4)).replaceAll(",","")) == 0) continue;

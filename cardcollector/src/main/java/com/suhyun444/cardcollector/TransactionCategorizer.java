@@ -24,12 +24,15 @@ public class TransactionCategorizer {
     private String getFromKeyword(String merchant)
     {
         Optional<String> categoryFromKeyword = keywordMap.keySet().stream()
+                .sorted((k1, k2) -> k2.length() - k1.length())
                 .filter(merchant::contains)
                 .findFirst(); 
         
         if (categoryFromKeyword.isPresent()) {
+            System.out.println(merchant + " , " + categoryFromKeyword.get());
             return keywordMap.get(categoryFromKeyword.get());
         }
+        System.out.println(merchant + " , not found");
         return null;
     }
 }
