@@ -9,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { PaymentTransaction } from "@/lib/mock-data"
 import { useData } from "@/lib/data-context"
 import { CreditCard, Calendar, MapPin, Receipt, Shield, Clock, Edit3, Plus, Check, X } from "lucide-react"
-import { useState } from "react"
+import { useState,useEffect } from "react"
+import { api  } from "@/lib/api"
+import { toast } from 'react-toastify'
 
 interface PaymentDetailModalProps {
   transaction: PaymentTransaction | null
@@ -20,18 +22,38 @@ interface PaymentDetailModalProps {
 export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDetailModalProps) {
   const { updateTransaction, categories, addCategory } = useData()
   const [isEditingCategory, setIsEditingCategory] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState(transaction?.category||"")
   const [newCategoryName, setNewCategoryName] = useState("")
   const [isAddingCategory, setIsAddingCategory] = useState(false)
-
+  useEffect(() => {
+  if (transaction) {
+    setSelectedCategory(transaction.category);
+  }
+}, [transaction]);
   if (!transaction) return null
 
-  const handleCategoryUpdate = () => {
+
+  const handleCategoryUpdate = async () => {
     if (selectedCategory && selectedCategory !== transaction.category) {
-      updateTransaction(transaction.id, { category: selectedCategory })
+      try
+      {
+        await api.patch(`/api/transactions/${transaction.id}/category`, { 
+          category: selectedCategory 
+        })
+        updateTransaction(transaction.id, { category: selectedCategory })
+        setSelectedCategory(selectedCategory)
+        toast.success("Import complete.")
+              
+      }
+      catch(error)
+      {
+        console.error("수정 실패 : " ,error)
+        toast.error("Import failed.")
+        setSelectedCategory(transaction.category)
+              
+      }
     }
     setIsEditingCategory(false)
-    setSelectedCategory("")
   }
 
   const handleAddCategory = () => {
@@ -165,13 +187,12 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
                 <div className="flex items-center gap-2">
                   {!isEditingCategory ? (
                     <>
-                      <Badge variant="secondary">{transaction.category}</Badge>
+                      <Badge variant="secondary">{selectedCategory}</Badge>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
                           setIsEditingCategory(true)
-                          setSelectedCategory(transaction.category)
                         }}
                         className="h-6 w-6 p-0"
                       >

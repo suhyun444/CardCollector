@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionRequestDto {
+public class TransactionDto {
     private String id;
     private String date;
     private String merchant;
@@ -18,9 +18,8 @@ public class TransactionRequestDto {
     private String description;
     private PaymentStatus status;
     private String paymentMethod;
-
-     public static TransactionRequestDto from(Transaction transaction) {
-        return new TransactionRequestDto(
+     public static TransactionDto from(Transaction transaction) {
+        return new TransactionDto(
             String.valueOf(transaction.getId()),
             transaction.getDate(),
             transaction.getMerchant(),

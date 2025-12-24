@@ -14,8 +14,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.MerchantCategoryDto;
-import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
+import com.suhyun444.cardcollector.DTO.TransactionDto;
 import com.suhyun444.cardcollector.Entity.Transaction;
 import com.suhyun444.cardcollector.Entity.User;
 import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
@@ -29,6 +30,10 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final TransactionCategorizer transactionCategorizer;
+    private static final Set<String> AMBIGUOUS_MERCHANTS = Set.of(
+        "네이버페이", "카카오페이", "토스", "PAYCO", 
+        "KG이니시스", "다날", "NICE페이", "KCP"
+    );
 
     public TransactionService(TransactionRepository transactionRepository,
                               UserRepository userRepository,
@@ -39,7 +44,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public List<TransactionRequestDto> uploadAndParseExcel(MultipartFile file, String email) throws Exception
+    public List<TransactionDto> uploadAndParseExcel(MultipartFile file, String email) throws Exception
     {
         TransactionParser parser = new KookminTransactionParser();
         List<Transaction> transactions;
@@ -57,9 +62,17 @@ public class TransactionService {
             User user = userRepository.findByEmail(email).orElseThrow();
             
             importTransactions(transactions,user);
-            List<TransactionRequestDto> result = transactionRepository.findAll().stream().map(TransactionRequestDto::from).collect(Collectors.toList());
+            List<TransactionDto> result = transactionRepository.findAll().stream().map(TransactionDto::from).collect(Collectors.toList());
             return result;
         }
+    }
+    @Transactional
+    public TransactionDto updateCategory(Long id,String newCategory)
+    {
+        Transaction transaction = transactionRepository.findById(id).orElseThrow();
+        transaction.setCategory(newCategory);
+
+        return TransactionDto.from(transaction);
     }
     private void importTransactions(List<Transaction> transactions,User user)
     {
@@ -77,7 +90,7 @@ public class TransactionService {
         return ;
     }
     private void categorizeTransactions(List<Transaction> transactions) {
-        List<String> uniqueMerchants = transactions.stream().map(Transaction::getMerchant).distinct().collect(Collectors.toList());
+        List<String> uniqueMerchants = transactions.stream().map(Transaction::getMerchant).filter(m -> !AMBIGUOUS_MERCHANTS.contains(m)).distinct().collect(Collectors.toList());
         
         Map<String, String> historyMap = transactionRepository.findCategoriesByMerchantsOrderByDateDesc(uniqueMerchants).stream()
                                                                 .collect(Collectors.toMap(

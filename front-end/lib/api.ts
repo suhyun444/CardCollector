@@ -41,5 +41,11 @@ export const api = {
       method: 'POST',
       body: isFormData ? body : JSON.stringify(body)
     });
+  },
+  patch: (url: string, body: any) => {
+    return request(url, {
+      method: 'PATCH',
+      body: JSON.stringify(body)
+    });
   }
 }

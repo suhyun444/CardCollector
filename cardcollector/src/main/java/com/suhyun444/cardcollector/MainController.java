@@ -10,21 +10,26 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
-import com.suhyun444.cardcollector.DTO.TransactionRequestDto;
-import com.suhyun444.cardcollector.DTO.TransactionResponseDto;
+import com.suhyun444.cardcollector.DTO.TransactionDto;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Controller
 public class MainController {
@@ -58,13 +63,19 @@ public class MainController {
             "user", principal // 사용자 ID 또는 정보 반환
         ));
     }
+    @PatchMapping("api/transactions/{id}/category")
+    public ResponseEntity<TransactionDto> postMethodName(@PathVariable Long id,@RequestBody CategoryUpdateDTO request) {        
+        System.out.println("update category");
+        return ResponseEntity.ok(transactionService.updateCategory(id,request.category()));
+    }
+    
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file, 
                                                         @AuthenticationPrincipal String email) {
       try {
 
-            List<TransactionRequestDto> transactions = transactionService.uploadAndParseExcel(file,email);
+            List<TransactionDto> transactions = transactionService.uploadAndParseExcel(file,email);
             return ResponseEntity.ok(Map.of("transactions", transactions));
 
         } catch (IllegalArgumentException e) {
