@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,9 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long>{
 
     @Query("SELECT t.transactionKey FROM Transaction t WHERE t.transactionKey IN :keys")
     Set<String> findExistingKeys(@Param("keys") List<String> keys);
+
+    void deleteByUserId(Long userId);
+    // @Modifying
+    // @Query("DELETE FROM Transaction t WHERE t.userId = :userId")
+    // void clearUserTransactions(@Param("userId") Long userId);
 }

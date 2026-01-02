@@ -74,6 +74,15 @@ public class TransactionService {
 
         return TransactionDto.from(transaction);
     }
+    @Transactional
+    public void clearTransactions(String email) throws Exception
+    {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        //transactionRepository.clearUserTransactions(user.getId());
+        transactionRepository.deleteByUserId(user.getId());
+        return;
+    }
+
     private void importTransactions(List<Transaction> transactions,User user)
     {
         List<String> keys = transactions.stream()

@@ -46,10 +46,19 @@ export default function DataManagementPage() {
     }
   }
 
-  const handleClearData = () => {
+  const handleClearData = async () => {
     if (window.confirm("Are you sure you want to delete all transaction data? This action cannot be undone.")) {
-      clearAllData()
-      toast.success("Data Cleared")
+      try 
+      {
+        await api.delete(`/api/transactions/clear`);
+        clearAllData()
+        toast.success("Data Cleared")
+        window.location.reload(); // 혹은 리스트 상태 초기화 함수 호출
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Clear Failed");
+      }
     }
   }
 

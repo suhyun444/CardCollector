@@ -47,5 +47,10 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(body)
     });
+  },
+  delete: (url: string) => {
+    return request(url, {
+      method: 'DELETE'
+    });
   }
 }

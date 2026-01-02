@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,6 +84,19 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("message", "Failed to parse Excel file"));
+        }
+    }
+    @DeleteMapping("api/transactions/clear")
+    public ResponseEntity<?> clearTransactions(@AuthenticationPrincipal String email)
+    {
+        try
+        {
+            transactionService.clearTransactions(email);
+            return ResponseEntity.ok(Map.of("message","Success to Clear"));
+        }
+        catch(Exception e)
+        {
+            return ResponseEntity.status(500).body(Map.of("message","Failed to Clear"));
         }
     }
 }
