@@ -29,10 +29,8 @@ public class TransactionCategorizer {
                 .findFirst(); 
         
         if (categoryFromKeyword.isPresent()) {
-            System.out.println(merchant + " , " + categoryFromKeyword.get());
             return keywordMap.get(categoryFromKeyword.get());
         }
-        System.out.println(merchant + " , not found");
         return null;
     }
 }

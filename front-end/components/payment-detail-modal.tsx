@@ -1,6 +1,8 @@
 "use client"
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,DialogFooter  } from "@/components/ui/dialog"
+
+// lucide-react import 부분에 Trash2, DollarSign 추가
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
@@ -8,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { PaymentTransaction } from "@/lib/mock-data"
 import { useData } from "@/lib/data-context"
-import { CreditCard, Calendar, MapPin, Receipt, Shield, Clock, Edit3, Plus, Check, X } from "lucide-react"
+import { CreditCard, Calendar, MapPin, Receipt, Shield, Clock, Edit3, Plus, Check, X, Trash2, DollarSign } from "lucide-react"
 import { useState,useEffect } from "react"
 import { api  } from "@/lib/api"
 import { toast } from 'react-toastify'
@@ -20,19 +22,57 @@ interface PaymentDetailModalProps {
 }
 
 export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDetailModalProps) {
-  const { updateTransaction, categories, addCategory } = useData()
+  const { updateTransaction, categories, addCategory, deleteTransaction} = useData()
   const [isEditingCategory, setIsEditingCategory] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(transaction?.category||"")
   const [newCategoryName, setNewCategoryName] = useState("")
   const [isAddingCategory, setIsAddingCategory] = useState(false)
+  const [isEditingAmount, setIsEditingAmount] = useState(false)
+  const [editedAmount, setEditedAmount] = useState<string>("")
+  const [currentAmount, setCurrentAmount] = useState(transaction?.amount||0);
+
   useEffect(() => {
-  if (transaction) {
-    setSelectedCategory(transaction.category);
+    if (transaction) {
+      setSelectedCategory(transaction.category);
+      setCurrentAmount(transaction.amount);
+      setEditedAmount(transaction.amount.toString());
   }
-}, [transaction]);
+  }, [transaction]);
   if (!transaction) return null
 
+const handleAmountUpdate = async () => {
+    const newAmount = parseFloat(editedAmount);
+    if (!isNaN(newAmount) && newAmount !== transaction.amount) {
+      try {
+        // 백엔드 구현 전이라면 UI만 업데이트 (나중에 API 연결 필요)
+        updateTransaction(transaction.id, { amount: newAmount })
+        setCurrentAmount(newAmount);
+        toast.success("Amount updated.")
+      } catch (error) {
+        toast.error("Update failed.")
+        setEditedAmount(transaction.amount.toString())
+      }
+    }
+    setIsEditingAmount(false)
+  }
 
+  // 👇 [추가] 거래 삭제 핸들러
+  const handleDeleteTransaction = async () => {
+    if (window.confirm("Are you sure you want to delete this transaction?")) {
+      try {
+        // API 경로에 맞게 수정 (예: /api/transactions?id=...)
+        //await api.delete(`/api/transactions/${transaction.id}`)
+        deleteTransaction(transaction.id);
+        toast.success("Transaction deleted.")
+        onClose()
+      } catch (error) {
+        console.error("Delete failed : ", error)
+        toast.error("Delete failed.")
+      }
+    }
+  }
+
+  // 👇 [수정] 모달 닫을 때 초기화 로직에 추가
   const handleCategoryUpdate = async () => {
     if (selectedCategory && selectedCategory !== transaction.category) {
       try
@@ -68,6 +108,7 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
   const handleModalChange = (open: boolean) => {
     if (!open) {
       setIsEditingCategory(false)
+      setIsEditingAmount(false)
       setSelectedCategory("")
       setNewCategoryName("")
       setIsAddingCategory(false)
@@ -149,7 +190,7 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Amount</p>
-              <p className="text-2xl font-bold text-foreground">{formatCurrency(transaction.amount)}</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(currentAmount)}</p>
             </div>
           </div>
 
@@ -181,7 +222,51 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
                 <span className="text-muted-foreground">Transaction ID</span>
                 <span className="font-mono text-sm">{transaction.id}</span>
               </div>
-
+            <div className="flex justify-between items-center h-8">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <DollarSign className="h-3 w-3" />
+                  My Share
+                </span>
+                <div className="flex items-center gap-2">
+                  {!isEditingAmount ? (
+                    <>
+                      <span className="font-bold">{formatCurrency(currentAmount)}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsEditingAmount(true)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <Edit3 className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={editedAmount}
+                        onChange={(e) => setEditedAmount(e.target.value)}
+                        className="h-8 w-24 text-right pr-2"
+                        autoFocus
+                      />
+                      <Button variant="ghost" size="sm" onClick={handleAmountUpdate} className="h-6 w-6 p-0">
+                        <Check className="h-4 w-4 text-green-600" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setIsEditingAmount(false)
+                          setEditedAmount(currentAmount.toString())
+                        }}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4 text-red-600" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>      
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Category</span>
                 <div className="flex items-center gap-2">
@@ -331,7 +416,23 @@ export function PaymentDetailModal({ transaction, isOpen, onClose }: PaymentDeta
             </>
           )}
         </div>
-      </DialogContent>
+        <Separator className="my-2" />
+        <DialogFooter className="sm:justify-between items-center gap-4">
+           <div className="text-xs text-muted-foreground">
+             Transaction ID: {transaction.id}
+           </div>
+           <Button 
+             variant="destructive" 
+             size="sm" 
+             onClick={handleDeleteTransaction}
+             className="w-full sm:w-auto"
+           >
+             <Trash2 className="h-4 w-4 mr-2" />
+             Delete Transaction
+           </Button>
+        </DialogFooter>
+
+      </DialogContent> {/* 여기가 끝입니다 */}
     </Dialog>
   )
 }
