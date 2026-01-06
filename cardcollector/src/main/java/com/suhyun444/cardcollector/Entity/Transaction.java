@@ -43,6 +43,9 @@ public class Transaction {
     private PaymentStatus status;
     @Column(nullable = false)
     private String paymentMethod;
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")

@@ -67,6 +67,18 @@ public class TransactionService {
         }
     }
     @Transactional
+    public void updateAmount(Long id,int amount)
+    {
+        Transaction transaction = transactionRepository.findById(id).orElseThrow();
+        transaction.setAmount(amount);
+    }
+    @Transactional
+    public void deleteTransaction(Long id)
+    {
+        Transaction transaction = transactionRepository.findById(id).orElseThrow();
+        transaction.setIsDeleted(true);
+    }
+    @Transactional
     public TransactionDto updateCategory(Long id,String newCategory)
     {
         Transaction transaction = transactionRepository.findById(id).orElseThrow();

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.suhyun444.cardcollector.DTO.AmountUpdateDTO;
 import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
 import com.suhyun444.cardcollector.DTO.TransactionDto;
@@ -65,11 +66,19 @@ public class MainController {
         ));
     }
     @PatchMapping("api/transactions/{id}/category")
-    public ResponseEntity<TransactionDto> postMethodName(@PathVariable Long id,@RequestBody CategoryUpdateDTO request) {        
-        System.out.println("update category");
+    public ResponseEntity<TransactionDto> patchCategory(@PathVariable Long id,@RequestBody CategoryUpdateDTO request) {        
         return ResponseEntity.ok(transactionService.updateCategory(id,request.category()));
     }
-    
+    @PatchMapping("api/transactions/{id}/amount")
+    public ResponseEntity<?> patchAmount(@PathVariable Long id,@RequestBody AmountUpdateDTO request) {        
+        transactionService.updateAmount(id,request.amount());
+        return ResponseEntity.ok(Map.of("message", "Success"));
+    }
+    @DeleteMapping("api/transactions/{id}/delete")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id) {
+        transactionService.deleteTransaction(id);
+        return ResponseEntity.ok(Map.of("message", "Success"));
+    }
     @PostMapping("api/transactions/upload")
     @ResponseBody
     public ResponseEntity<?> uploadTransactionsFromExcel(@RequestParam("file") MultipartFile file, 

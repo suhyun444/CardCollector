@@ -44,6 +44,9 @@ const handleAmountUpdate = async () => {
     const newAmount = parseFloat(editedAmount);
     if (!isNaN(newAmount) && newAmount !== transaction.amount) {
       try {
+        await api.patch(`/api/transactions/${transaction.id}/amount`, { 
+          amount: newAmount 
+        })
         // 백엔드 구현 전이라면 UI만 업데이트 (나중에 API 연결 필요)
         updateTransaction(transaction.id, { amount: newAmount })
         setCurrentAmount(newAmount);
@@ -60,8 +63,7 @@ const handleAmountUpdate = async () => {
   const handleDeleteTransaction = async () => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       try {
-        // API 경로에 맞게 수정 (예: /api/transactions?id=...)
-        //await api.delete(`/api/transactions/${transaction.id}`)
+        await api.delete(`/api/transactions/${transaction.id}/delete`);
         deleteTransaction(transaction.id);
         toast.success("Transaction deleted.")
         onClose()
