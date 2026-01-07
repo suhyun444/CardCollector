@@ -16,7 +16,7 @@ const LoginSuccessHandler = () => {
       console.log('Token saved to localStorage.');
 
       // 3. 사용자를 메인 페이지(예: /)로 이동시킵니다.
-      router.push('/'); 
+      window.location.href = '/';
     } else {
       console.error('No token found in URL.');
       router.push('/login/google'); // 토큰이 없으면 로그인 페이지로

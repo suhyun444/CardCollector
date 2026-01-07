@@ -52,33 +52,27 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     checkLogin()
   }, [pathname, router])
   useEffect(() => {
-    console.log("load saveData")
-    const savedData = localStorage.getItem("payment-history-data")
-    const savedCategories = localStorage.getItem("payment-categories")
+    const accessToken = localStorage.getItem("accessToken"); 
 
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData)
-        setTransactions(parsed)
-      } catch (error) {
-        console.error("Failed to load saved data:", error)
-        setTransactions(mockTransactions)
-      }
-    } else {
-      setTransactions(mockTransactions)
+    if (!accessToken) {
+        setTransactions([]); 
+        return; 
     }
-
-    if (savedCategories) {
-      try {
-        const parsedCategories = JSON.parse(savedCategories)
-        setCategories(parsedCategories)
-      } catch (error) {
-        console.error("Failed to load saved categories:", error)
-        extractCategoriesFromTransactions(mockTransactions)
-      }
-    } else {
-      extractCategoriesFromTransactions(mockTransactions)
-    }
+    const fetchInitialData = async () => {
+        try {
+            const transactionsData = await api.get('/api/transactions'); 
+            
+            setTransactions(transactionsData);
+            extractCategoriesFromTransactions(transactionsData);
+            
+        } catch (error) {
+            console.error("데이터 불러오기 실패:", error);
+            setTransactions([]); 
+        }
+    };
+    // 함수 실행
+    fetchInitialData();
+    
   }, [])
 
   const extractCategoriesFromTransactions = (transactionList: PaymentTransaction[]) => {
@@ -86,17 +80,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setCategories(uniqueCategories)
   }
 
-  useEffect(() => {
-    if (transactions.length > 0) {
-      localStorage.setItem("payment-history-data", JSON.stringify(transactions))
-    }
-  }, [transactions])
-
-  useEffect(() => {
-    if (categories.length > 0) {
-      localStorage.setItem("payment-categories", JSON.stringify(categories))
-    }
-  }, [categories])
 
   const addTransaction = (transaction: Omit<PaymentTransaction, "id">) => {
     const newTransaction: PaymentTransaction = {
@@ -156,8 +139,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const clearAllData = () => {
     setTransactions([])
     setCategories([])
-    localStorage.removeItem("payment-history-data")
-    localStorage.removeItem("payment-categories")
   }
   if (!isAuthChecked) {
     return (

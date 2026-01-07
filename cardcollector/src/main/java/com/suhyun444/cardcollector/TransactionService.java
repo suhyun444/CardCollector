@@ -67,6 +67,14 @@ public class TransactionService {
         }
     }
     @Transactional
+    public List<TransactionDto> geTransactions(String email)
+    {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        List<Transaction> transactions = transactionRepository.findByUserId(user.getId());
+        List<TransactionDto> result = transactions.stream().map(TransactionDto::from).collect(Collectors.toList());
+        return result;
+    } 
+    @Transactional
     public void updateAmount(Long id,int amount)
     {
         Transaction transaction = transactionRepository.findById(id).orElseThrow();

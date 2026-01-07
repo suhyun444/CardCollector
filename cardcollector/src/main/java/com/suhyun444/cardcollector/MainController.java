@@ -65,6 +65,11 @@ public class MainController {
             "user", principal // 사용자 ID 또는 정보 반환
         ));
     }
+    @GetMapping("api/transactions")
+    public ResponseEntity<List<TransactionDto>> getTransactions(@AuthenticationPrincipal String email) {
+        return ResponseEntity.ok(transactionService.geTransactions(email));
+    }
+    
     @PatchMapping("api/transactions/{id}/category")
     public ResponseEntity<TransactionDto> patchCategory(@PathVariable Long id,@RequestBody CategoryUpdateDTO request) {        
         return ResponseEntity.ok(transactionService.updateCategory(id,request.category()));
