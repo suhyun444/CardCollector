@@ -95,9 +95,15 @@ export default function PaymentHistoryPage() {
     {} as Record<string, { name: string; value: number; count: number }>,
   )
 
-  const pieChartData = Object.values(categoryBreakdown)
+  const pieChartData = [...Object.values(categoryBreakdown)].sort((a, b) => b.value - a.value);
 
-  const COLORS = ["#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#6366f1", "#ec4899"]
+
+const COLORS = [
+  "#8b5cf6", "#f97316", "#10b981", "#3b82f6", "#ef4444",
+  "#06b6d4", "#f59e0b", "#ec4899", "#84cc16", "#6366f1",
+  "#f43f5e", "#14b8a6", "#eab308", "#d946ef", "#0ea5e9",
+  "#22c55e", "#a855f7", "#f87171", "#64748b", "#78716c"
+];
 
   const groupedTransactions = filteredTransactions.reduce(
     (acc, transaction) => {
@@ -322,22 +328,51 @@ export default function PaymentHistoryPage() {
                         cy="50%"
                         innerRadius={40}
                         outerRadius={80}
-                        paddingAngle={2}
+                        paddingAngle={0}
                         dataKey="value"
+                        nameKey="name"
                       >
                         {pieChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value: number) => [formatCurrency(value), "Amount"]}
-                        labelFormatter={(label) => `Category: ${label}`}
+                        formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                        //labelFormatter={(label) => `Category: ${label}`}
+                        labelStyle={{ fontWeight: "bold", color: "#333" }}
+                        contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                       />
                       <Legend
-                        formatter={(value, entry) => (
-                          <span style={{ color: entry.color }}>
-                            {value} ({formatCurrency(entry.payload?.value || 0)})
-                          </span>
+                        verticalAlign="bottom"
+                        height={80} // Legend 영역의 높이를 고정합니다 (차트 침범 방지)
+                        content={() => (
+                          // 1. 높이 제한(max-h-20)과 스크롤(overflow-y-auto)을 걸어줍니다.
+                          // 2. grid-cols-2로 2열로 깔끔하게 줄 세웁니다.
+                          <div className="mt-2 w-full px-4">
+                            <ul className="grid grid-cols-4 gap-x-2 gap-y-1 max-h-20 overflow-y-auto pr-2 custom-scrollbar">
+                              {pieChartData.map((entry, index) => (
+                                <li key={`legend-${index}`} className="flex items-center justify-start text-xs text-gray-600 py-1">
+                                  
+                                  {/* 1. 색상 점 */}
+                                  <span 
+                                    className="block w-2 h-2 rounded-full shrink-0 mr-1.5" 
+                                    style={{ backgroundColor: COLORS[index % COLORS.length] }} 
+                                  />
+                                  
+                                  {/* 2. 카테고리 이름 + 금액을 한 덩어리로 묶어서 보여줌 */}
+                                  <div className="flex items-center gap-1 truncate">
+                                    <span className="font-medium text-gray-700">
+                                      {entry.name}
+                                    </span>
+                                    <span className="text-gray-500">
+                                      ({formatCurrency(entry.value)})
+                                    </span>
+                                  </div>
+
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         )}
                       />
                     </PieChart>
