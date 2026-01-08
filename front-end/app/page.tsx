@@ -1,9 +1,39 @@
+"use client";
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CreditCard, TrendingUp, Calendar, BarChart3, Settings } from "lucide-react"
+import {useData} from "@/lib/data-context"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
+    const {transactions} = useData()
+    const [transactionAverage, setTransactionAverage] = useState(0);
+    const [totalTransaction, setTotalTransaction] = useState(0);
+    const [thisMonthAmount, setThisMonthAmount] = useState(0);
+
+    useEffect(()=>
+    {
+      const total = transactions.length;
+      let average = 0; 
+      transactions.forEach(element => {
+        average += element.amount;
+      });
+      average /= total;
+      let thisMonthAmount = 0;
+      const currentDate = new Date();
+      transactions.forEach(element=>{
+       const elementDate = new Date(element.date);
+        if(elementDate.getFullYear() == currentDate.getFullYear() && elementDate.getMonth() == currentDate.getMonth())
+        {
+          thisMonthAmount += element.amount;
+        }
+      })
+      setTransactionAverage(average);
+      setTotalTransaction(total);
+      setThisMonthAmount(thisMonthAmount);
+    },[transactions])
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -77,7 +107,7 @@ export default function HomePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">This Month</p>
-                  <p className="text-2xl font-bold">$2,847.32</p>
+                  <p className="text-2xl font-bold">{thisMonthAmount}</p>
                 </div>
                 <div className="h-8 w-8 bg-accent/10 rounded-full flex items-center justify-center">
                   <CreditCard className="h-4 w-4 text-accent" />
@@ -91,7 +121,7 @@ export default function HomePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Transactions</p>
-                  <p className="text-2xl font-bold">127</p>
+                  <p className="text-2xl font-bold">{totalTransaction}</p>
                 </div>
                 <div className="h-8 w-8 bg-accent/10 rounded-full flex items-center justify-center">
                   <BarChart3 className="h-4 w-4 text-accent" />
@@ -105,7 +135,7 @@ export default function HomePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg. per Transaction</p>
-                  <p className="text-2xl font-bold">$22.42</p>
+                  <p className="text-2xl font-bold">{Math.round(transactionAverage)}</p>
                 </div>
                 <div className="h-8 w-8 bg-accent/10 rounded-full flex items-center justify-center">
                   <TrendingUp className="h-4 w-4 text-accent" />
