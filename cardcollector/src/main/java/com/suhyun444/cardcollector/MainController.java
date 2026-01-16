@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.suhyun444.cardcollector.DTO.AmountUpdateDTO;
+import com.suhyun444.cardcollector.DTO.AnalysisDto;
 import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.PaymentStatus;
 import com.suhyun444.cardcollector.DTO.TransactionDto;
@@ -112,5 +113,14 @@ public class MainController {
         {
             return ResponseEntity.status(500).body(Map.of("message","Failed to Clear"));
         }
+    }
+    @PostMapping("api/analysis")
+    public ResponseEntity<AnalysisDto.Response> analyzeSpending(@RequestBody AnalysisDto.Request request) {
+        // Controller는 오직 요청을 받고 응답을 주는 역할만 함
+        System.out.println("분석 시작");
+        System.out.println(request.getTransactions());
+        //TODO:transactions 잘 넘어오는거 확인 이후 api연결 끝내기
+
+        return ResponseEntity.ok(transactionService.getMonthlyAnalysis(request));
     }
 }
