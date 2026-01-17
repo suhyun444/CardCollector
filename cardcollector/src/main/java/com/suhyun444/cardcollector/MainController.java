@@ -68,7 +68,7 @@ public class MainController {
     }
     @GetMapping("api/transactions")
     public ResponseEntity<List<TransactionDto>> getTransactions(@AuthenticationPrincipal String email) {
-        return ResponseEntity.ok(transactionService.geTransactions(email));
+        return ResponseEntity.ok(transactionService.getTransactions(email));
     }
     
     @PatchMapping("api/transactions/{id}/category")
@@ -116,11 +116,6 @@ public class MainController {
     }
     @PostMapping("api/analysis")
     public ResponseEntity<AnalysisDto.Response> analyzeSpending(@RequestBody AnalysisDto.Request request) {
-        // Controller는 오직 요청을 받고 응답을 주는 역할만 함
-        System.out.println("분석 시작");
-        System.out.println(request.getTransactions());
-        //TODO:transactions 잘 넘어오는거 확인 이후 api연결 끝내기
-
         return ResponseEntity.ok(transactionService.getMonthlyAnalysis(request));
     }
 }

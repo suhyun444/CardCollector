@@ -14,6 +14,8 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.suhyun444.cardcollector.SpendingAnalyzer;
+import com.suhyun444.cardcollector.DTO.AnalysisDto;
 import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.MerchantCategoryDto;
 import com.suhyun444.cardcollector.DTO.TransactionDto;
@@ -30,6 +32,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final TransactionCategorizer transactionCategorizer;
+    private final SpendingAnalyzer spendingAnalyzer;
     private static final Set<String> AMBIGUOUS_MERCHANTS = Set.of(
         "네이버페이", "카카오페이", "토스", "PAYCO", 
         "KG이니시스", "다날", "NICE페이", "KCP"
@@ -37,10 +40,12 @@ public class TransactionService {
 
     public TransactionService(TransactionRepository transactionRepository,
                               UserRepository userRepository,
-                              TransactionCategorizer transactionCategorizer) {
+                              TransactionCategorizer transactionCategorizer,
+                              SpendingAnalyzer spendingAnalyzer) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.transactionCategorizer = transactionCategorizer;
+        this.spendingAnalyzer = spendingAnalyzer;
     }
 
     @Transactional
@@ -67,7 +72,7 @@ public class TransactionService {
         }
     }
     @Transactional
-    public List<TransactionDto> geTransactions(String email)
+    public List<TransactionDto> getTransactions(String email)
     {
         User user = userRepository.findByEmail(email).orElseThrow();
         List<Transaction> transactions = transactionRepository.findByUserId(user.getId());
@@ -132,5 +137,21 @@ public class TransactionService {
             String finalCategory = transactionCategorizer.getCategory(t.getMerchant(), historicalCategory);
             t.setCategory(finalCategory);
         });
+    }
+    public AnalysisDto.Response getMonthlyAnalysis(AnalysisDto.Request request) {
+        // 1. (옵션) 유효성 검사 등 비즈니스 로직
+        if (request.getTransactions() == null || request.getTransactions().isEmpty()) {
+            throw new IllegalArgumentException("거래 내역이 없습니다.");
+        }
+
+        // 2. Analyzer에게 작업 위임 (AI 호출)
+        AnalysisDto.Response analysisResult = spendingAnalyzer.analyze(
+                request.getTransactions(), 
+                request.getMonth()
+        );
+
+        // 3. (옵션) 나중에 여기에 "DB 저장 로직" 등을 추가하기 좋음
+        // transactionAnalysisRepository.save(...);
+        return analysisResult;
     }
 }

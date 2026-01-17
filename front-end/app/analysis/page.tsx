@@ -113,12 +113,12 @@ export default function AIAnalysisPage() {
         const currentKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 
         return currentKey == selectedMonth
-      });
-      console.log("Analyze Data");
-      console.log(transactions);
-      console.log(filteredTransactions);
-      const updatedInsight :AIInsight = await api.post("/api/analysis", {transactions: filteredTransactions,month:10});
-
+      })
+      console.log("Analyze Data")
+      console.log(transactions)
+      console.log(filteredTransactions)
+      const updatedInsight :AIInsight = {month: selectedMonth, ...await api.post("/api/analysis", {transactions: filteredTransactions,month:selectedMonth})}
+      console.log(updatedInsight)
       setInsightsHistory(prev => {
         const index = prev.findIndex(item => item.month === selectedMonth)
         if (index !== -1) {
