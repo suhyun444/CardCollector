@@ -115,7 +115,9 @@ public class MainController {
         }
     }
     @PostMapping("api/analysis")
-    public ResponseEntity<AnalysisDto.Response> analyzeSpending(@RequestBody AnalysisDto.Request request) {
-        return ResponseEntity.ok(transactionService.getMonthlyAnalysis(request));
+    public ResponseEntity<AnalysisDto.Response> analyzeSpending(@RequestBody AnalysisDto.Request request, 
+                                                                @AuthenticationPrincipal String email) 
+    {
+        return ResponseEntity.ok(transactionService.getMonthlyAnalysis(email,request));
     }
 }

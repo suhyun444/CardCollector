@@ -1,6 +1,7 @@
 package com.suhyun444.cardcollector;
 
 import com.suhyun444.cardcollector.DTO.AnalysisDto;
+import com.suhyun444.cardcollector.DTO.GroqResponse;
 import com.suhyun444.cardcollector.DTO.TransactionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -77,22 +78,21 @@ public class SpendingAnalyzer {
                     "temperature", 0.1
             );
 
-            String responseString = restClient.post()
+            GroqResponse response = restClient.post()
                     .uri("/chat/completions")
                     .header("Authorization", "Bearer " + groqApiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(requestBody)
                     .retrieve()
-                    .body(String.class);
+                    .body(GroqResponse.class);
 
-            log.info("AI Raw Response: {}", responseString);
+            log.info("AI Raw Response: {}", response);
 
-            Map<String, Object> responseMap = objectMapper.readValue(responseString, Map.class);
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
-            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+            String content = response.choices().get(0).message().content();
             
-            return objectMapper.readValue((String) message.get("content"), AnalysisDto.Response.class);
-
+            AnalysisDto.Response result = objectMapper.readValue(content, AnalysisDto.Response.class);
+            result.setMonth(month);
+            return result;
         } catch (Exception e) {
             log.error("AI Analysis Failed", e);
             throw new RuntimeException("Analyzer Error: " + e.getMessage());

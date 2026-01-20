@@ -24,5 +24,5 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long>{
     Set<String> findExistingKeys(@Param("keys") List<String> keys);
 
     void deleteByUserId(Long userId);
-    List<Transaction> findByUserId(Long userId);
+    List<Transaction> findByUserIdAndIsDeletedFalse(Long userId);
 }

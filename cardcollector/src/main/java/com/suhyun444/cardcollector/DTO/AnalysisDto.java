@@ -20,6 +20,7 @@ public class AnalysisDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
+        private String month;
         private String summary;
         private List<Trend> trends;
         private List<Recommendation> recommendations;

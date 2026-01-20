@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import com.suhyun444.cardcollector.DTO.AnalysisDto;
 import com.suhyun444.cardcollector.DTO.CategoryUpdateDTO;
 import com.suhyun444.cardcollector.DTO.MerchantCategoryDto;
 import com.suhyun444.cardcollector.DTO.TransactionDto;
+import com.suhyun444.cardcollector.Entity.AnalysisHistory;
 import com.suhyun444.cardcollector.Entity.Transaction;
 import com.suhyun444.cardcollector.Entity.User;
 import com.suhyun444.cardcollector.Parser.KookminTransactionParser;
@@ -31,6 +33,7 @@ import jakarta.transaction.Transactional;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final AnalysisHistoryRepository analysisHistoryRepository;
     private final TransactionCategorizer transactionCategorizer;
     private final SpendingAnalyzer spendingAnalyzer;
     private static final Set<String> AMBIGUOUS_MERCHANTS = Set.of(
@@ -41,12 +44,14 @@ public class TransactionService {
     public TransactionService(TransactionRepository transactionRepository,
                               UserRepository userRepository,
                               TransactionCategorizer transactionCategorizer,
-                              SpendingAnalyzer spendingAnalyzer) {
+                              SpendingAnalyzer spendingAnalyzer,
+                              AnalysisHistoryRepository analysisHistoryRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.transactionCategorizer = transactionCategorizer;
         this.spendingAnalyzer = spendingAnalyzer;
-    }
+        this.analysisHistoryRepository = analysisHistoryRepository;
+    }   
 
     @Transactional
     public List<TransactionDto> uploadAndParseExcel(MultipartFile file, String email) throws Exception
@@ -67,7 +72,7 @@ public class TransactionService {
             User user = userRepository.findByEmail(email).orElseThrow();
             
             importTransactions(transactions,user);
-            List<TransactionDto> result = transactionRepository.findAll().stream().map(TransactionDto::from).collect(Collectors.toList());
+            List<TransactionDto> result = transactionRepository.findById(user.getId()).stream().map(TransactionDto::from).collect(Collectors.toList());
             return result;
         }
     }
@@ -75,7 +80,7 @@ public class TransactionService {
     public List<TransactionDto> getTransactions(String email)
     {
         User user = userRepository.findByEmail(email).orElseThrow();
-        List<Transaction> transactions = transactionRepository.findByUserId(user.getId());
+        List<Transaction> transactions = transactionRepository.findByUserIdAndIsDeletedFalse(user.getId());
         List<TransactionDto> result = transactions.stream().map(TransactionDto::from).collect(Collectors.toList());
         return result;
     } 
@@ -103,7 +108,6 @@ public class TransactionService {
     public void clearTransactions(String email) throws Exception
     {
         User user = userRepository.findByEmail(email).orElseThrow();
-        //transactionRepository.clearUserTransactions(user.getId());
         transactionRepository.deleteByUserId(user.getId());
         return;
     }
@@ -138,20 +142,19 @@ public class TransactionService {
             t.setCategory(finalCategory);
         });
     }
-    public AnalysisDto.Response getMonthlyAnalysis(AnalysisDto.Request request) {
-        // 1. (옵션) 유효성 검사 등 비즈니스 로직
+    public AnalysisDto.Response getMonthlyAnalysis(String email,AnalysisDto.Request request) {
         if (request.getTransactions() == null || request.getTransactions().isEmpty()) {
             throw new IllegalArgumentException("거래 내역이 없습니다.");
         }
 
-        // 2. Analyzer에게 작업 위임 (AI 호출)
         AnalysisDto.Response analysisResult = spendingAnalyzer.analyze(
                 request.getTransactions(), 
                 request.getMonth()
         );
+        User user = userRepository.findByEmail(email).orElseThrow();
+        AnalysisHistory history = new AnalysisHistory(user, analysisResult);
+        analysisHistoryRepository.save(history);
 
-        // 3. (옵션) 나중에 여기에 "DB 저장 로직" 등을 추가하기 좋음
-        // transactionAnalysisRepository.save(...);
         return analysisResult;
     }
 }
