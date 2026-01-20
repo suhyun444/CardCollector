@@ -120,4 +120,9 @@ public class MainController {
     {
         return ResponseEntity.ok(transactionService.getMonthlyAnalysis(email,request));
     }
+    @GetMapping("api/analysis")
+    public ResponseEntity<List<AnalysisDto.Response>> getAnalysis(@AuthenticationPrincipal String email) {        
+        return ResponseEntity.ok(transactionService.getAnalysis(email));
+    }
+       
 }

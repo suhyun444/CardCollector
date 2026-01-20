@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -50,62 +50,38 @@ export default function AIAnalysisPage() {
   
   // 🔹 1. 기능 변경: 단일 객체 대신 배열로 이력 관리
   const [insightsHistory, setInsightsHistory] = useState<AIInsight[]>([])
-  const [isLoading, setIsLoading] = useState(true)       // 초기 로딩
+  const [isLoading, setIsLoading] = useState(false)       // 초기 로딩
   const [isReanalyzing, setIsReanalyzing] = useState(false) // 재분석 로딩
+  const hasFetchedHistory = useRef(false)
 
   // 🔹 2. 초기 자동 로딩 (페이지 진입 시 실행)
-  useEffect(() => {
-    const fetchInitialInsights = async () => {
+useEffect(() => {
+    const fetchAllHistory = async () => {
       setIsLoading(true)
-      // 실제 백엔드 연동 시 fetch 호출 위치
-      setTimeout(() => {
-        // 더미 데이터: 여러 달의 데이터를 한 번에 가져왔다고 가정
-        const mockData: AIInsight[] = [
-          {
-            month: getMonthKey(new Date()),
-            summary: "Based on your spending patterns, you've spent 15% more than last month, primarily due to increased shopping and dining expenses.",
-            trends: [
-              { type: "increase", category: "Shopping", change: "+23%", description: "Significant increase in shopping expenses" },
-              { type: "decrease", category: "Transportation", change: "-12%", description: "Reduced transportation costs" },
-              { type: "stable", category: "Groceries", change: "+2%", description: "Consistent grocery spending" },
-            ],
-            recommendations: [
-              { title: "Reduce Shopping Expenses", description: "Consider setting a monthly budget limit.", priority: "high" },
-              { title: "Optimize Subscriptions", description: "Review your entertainment subscriptions.", priority: "medium" },
-              { title: "Save Transportation Costs", description: "Opportunity to increase savings.", priority: "low" },
-            ],
-            budgetHealth: { score: 72, status: "Good", description: "Your spending is generally well-balanced." },
-          },
-          // 과거 데이터 예시 (필요시 추가)
-        ]
-        setInsightsHistory(mockData)
+      try {
+        const historyList = await api.get("/api/analysis")
+        
+        if (historyList && Array.isArray(historyList)) {
+          setInsightsHistory(historyList)
+        }
+      } catch (error) {
+        console.error("Failed to fetch analysis history:", error)
+      } finally {
         setIsLoading(false)
-      }, 1000)
+      }
     }
 
-    if (transactions.length > 0) {
-      fetchInitialInsights()
+    // 트랜잭션 데이터가 로드된 상태라면 실행
+    if (transactions.length > 0 && !hasFetchedHistory.current) {
+      hasFetchedHistory.current = true
+      fetchAllHistory()
     }
-  }, [transactions])
+    // selectedMonth 의존성 제거! (달이 바뀌어도 API 호출 안 함)
+  }, [transactions.length])
 
-  // 🔹 3. 재분석 기능 (현재 달만 업데이트)
   const handleReanalyze = () => {
     setIsReanalyzing(true)
     setTimeout(async () => {
-      // 재분석 결과 (예시로 내용 변경)
-      // const updatedInsight: AIInsight = {
-      //   month: selectedMonth,
-      //   summary: "[Updated] spending analysis based on the latest transactions. You are doing great with your budget!",
-      //   trends: [
-      //     { type: "decrease", category: "Shopping", change: "-5%", description: "Spending stabilized after alert" },
-      //     { type: "stable", category: "Transportation", change: "0%", description: "No significant changes" },
-      //     { type: "increase", category: "Groceries", change: "+8%", description: "Slight increase due to holiday season" },
-      //   ],
-      //   recommendations: [
-      //     { title: "Maintain Current Pace", description: "Your current spending habits are sustainable.", priority: "low" },
-      //   ],
-      //   budgetHealth: { score: 85, status: "Excellent", description: "Great job managing your finances!" },
-      // }
 
       const filteredTransactions = transactions.filter((transaction) => {
         const date = new Date(transaction.date);
@@ -114,11 +90,9 @@ export default function AIAnalysisPage() {
 
         return currentKey == selectedMonth
       })
-      console.log("Analyze Data")
-      console.log(transactions)
-      console.log(filteredTransactions)
+
       const updatedInsight :AIInsight = {month: selectedMonth, ...await api.post("/api/analysis", {transactions: filteredTransactions,month:selectedMonth})}
-      console.log(updatedInsight)
+
       setInsightsHistory(prev => {
         const index = prev.findIndex(item => item.month === selectedMonth)
         if (index !== -1) {

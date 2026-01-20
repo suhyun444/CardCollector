@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
+import com.suhyun444.cardcollector.Entity.AnalysisHistory;
+import com.suhyun444.cardcollector.Entity.Transaction;
+
 public class AnalysisDto {
 
     // 1. 프론트에서 받을 요청 (Request)
@@ -25,6 +28,15 @@ public class AnalysisDto {
         private List<Trend> trends;
         private List<Recommendation> recommendations;
         private BudgetHealth budgetHealth;
+        public static Response from(AnalysisHistory analysisHistory) {
+        return new Response(
+            analysisHistory.getMonth(),
+            analysisHistory.getSummary(),
+            analysisHistory.getTrends(),
+            analysisHistory.getRecommendations(),
+            new BudgetHealth(analysisHistory.getTotalScore(),analysisHistory.getHealthStatus(),analysisHistory.getHealthDescription())
+        );
+    }
     }
 
     @Data
@@ -43,6 +55,7 @@ public class AnalysisDto {
     }
 
     @Data
+    @AllArgsConstructor
     public static class BudgetHealth {
         private int score;
         private String status;

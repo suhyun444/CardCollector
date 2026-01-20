@@ -157,4 +157,11 @@ public class TransactionService {
 
         return analysisResult;
     }
+    public List<AnalysisDto.Response> getAnalysis(String email)
+    {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        List<AnalysisHistory> histories = analysisHistoryRepository.findByUserId(user.getId()).orElseThrow();
+        
+        return histories.stream().map(AnalysisDto.Response::from).collect(Collectors.toList());
+    }
 }
