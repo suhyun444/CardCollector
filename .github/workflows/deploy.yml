@@ -30,7 +30,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "build/libs/*.jar"
+        source: "cardcollector/build/libs/*.jar"
         target: "/home/${{ secrets.USERNAME }}/money-book/"
         strip_components: 2 
 
