@@ -1,0 +1,50 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Build with Gradle
+      run: |
+        cd cardcollector
+        chmod +x gradlew
+        ./gradlew build -x test
+
+    - name: Copy Jar to Raspberry Pi
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "build/libs/*.jar"
+        target: "/home/${{ secrets.USERNAME }}/money-book/"
+        strip_components: 2 
+
+    - name: Restart Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          pkill -f java || true
+          
+          sleep 3
+          
+          cd /home/${{ secrets.USERNAME }}/money-book/
+          sh start.sh
