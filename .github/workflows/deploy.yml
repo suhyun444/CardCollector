@@ -45,5 +45,6 @@ jobs:
         script: |
           cd /home/${{ secrets.USERNAME }}/cardcollector/
           pkill -f java || true
-          nohup sh start.sh > /dev/null 2>&1 &
+          sleep 2
+          sh start.sh
           sleep 1
