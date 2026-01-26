@@ -3,6 +3,7 @@ name: Deploy to Raspberry Pi
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -45,4 +46,5 @@ jobs:
           pkill -f java || true
           sleep 3
           cd /home/${{ secrets.USERNAME }}/cardcollector/
-          sh start.sh
+          nohup sh start.sh > /dev/null 2>&1 &
+          sleep 1
