@@ -43,8 +43,7 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          pkill -f java || true
-          sleep 3
           cd /home/${{ secrets.USERNAME }}/cardcollector/
+          pkill -f java || true
           nohup sh start.sh > /dev/null 2>&1 &
           sleep 1
