@@ -142,6 +142,7 @@ public class TransactionService {
             t.setCategory(finalCategory);
         });
     }
+    @Transactional
     public AnalysisDto.Response getMonthlyAnalysis(String email,AnalysisDto.Request request) {
         if (request.getTransactions() == null || request.getTransactions().isEmpty()) {
             throw new IllegalArgumentException("거래 내역이 없습니다.");
@@ -152,8 +153,21 @@ public class TransactionService {
                 request.getMonth()
         );
         User user = userRepository.findByEmail(email).orElseThrow();
-        AnalysisHistory history = new AnalysisHistory(user, analysisResult);
-        analysisHistoryRepository.save(history);
+
+
+        analysisHistoryRepository.findByUserIdAndMonth(user.getId(), request.getMonth())
+        .ifPresentOrElse(
+            (existingHistory) -> {
+                existingHistory.update(analysisResult);
+            },
+            () -> {
+                AnalysisHistory newHistory = AnalysisHistory.builder()
+                        .user(user)
+                        .response(analysisResult)
+                        .build();
+                analysisHistoryRepository.save(newHistory);
+            }
+        );
 
         return analysisResult;
     }

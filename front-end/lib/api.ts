@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://pkfp7b53-8080.asse.devtunnels.ms';
+const API_BASE_URL = 'https://suhyun444.duckdns.org';
 
 const request = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('accessToken');

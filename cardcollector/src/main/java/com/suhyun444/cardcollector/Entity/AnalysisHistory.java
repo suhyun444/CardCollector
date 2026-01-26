@@ -1,15 +1,5 @@
 package com.suhyun444.cardcollector.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -77,5 +67,14 @@ public class AnalysisHistory {
         this.healthDescription = response.getBudgetHealth().getDescription();
         this.trends = response.getTrends();
         this.recommendations = response.getRecommendations();
+    }
+
+    public void update(AnalysisDto.Response response) {
+    this.summary = response.getSummary();
+    this.totalScore = response.getBudgetHealth().getScore();
+    this.healthStatus = response.getBudgetHealth().getStatus();
+    this.healthDescription = response.getBudgetHealth().getDescription();
+    this.trends = response.getTrends();
+    this.recommendations = response.getRecommendations();
     }
 }

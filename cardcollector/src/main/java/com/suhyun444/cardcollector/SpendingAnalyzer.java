@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SpendingAnalyzer {
 
-    @Value("${groq.api.key}")
+    @Value("${groq_api_key}")
     private String groqApiKey;
 
     private final ObjectMapper objectMapper;

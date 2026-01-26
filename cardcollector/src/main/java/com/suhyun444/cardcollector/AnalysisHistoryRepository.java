@@ -17,4 +17,5 @@ import com.suhyun444.cardcollector.Entity.Transaction;
 @Repository
 public interface AnalysisHistoryRepository extends JpaRepository<AnalysisHistory,Long>{
     Optional<List<AnalysisHistory>> findByUserId(Long userId);
+    Optional<AnalysisHistory> findByUserIdAndMonth(Long userId, String month);
 }
