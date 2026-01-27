@@ -44,7 +44,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd /home/${{ secrets.USERNAME }}/cardcollector/
-          pkill -f java || true
-          sleep 3
-          timeout 10s sh start.sh || true
-          echo "GitHub Actions 연결을 종료합니다."
+          nohup sh start.sh > /dev/null 2>&1 & 
+          sleep 1
+          exit
