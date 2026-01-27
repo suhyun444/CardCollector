@@ -44,4 +44,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd /home/${{ secrets.USERNAME }}/cardcollector/
-          timeout 100s sh start.sh || true
+          nohup sh start.sh > /dev/null 2>&1 &
+          sleep 1
+          exit 0
