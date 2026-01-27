@@ -45,3 +45,17 @@ jobs:
         script: |
           cd /home/${{ secrets.USERNAME }}/cardcollector/
           echo "sh start.sh" | at now
+          
+    - name: Discord Notification
+          uses: sarisia/actions-status-discord@v1
+          if: always() 
+          with:
+            webhook: ${{ secrets.DISCORD_WEBHOOK }}
+            status: ${{ job.status }}
+            title: "🚀 배포 결과"
+            description: |
+              배포가 종료되었습니다!
+              결과: ${{ job.status }}
+            color: 0x008000 
+            username: GitHub Actions
+            avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
