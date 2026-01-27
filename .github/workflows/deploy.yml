@@ -47,3 +47,4 @@ jobs:
           pkill -f java || true
           sleep 3
           timeout 10s sh start.sh || true
+          echo "GitHub Actions 연결을 종료합니다."
