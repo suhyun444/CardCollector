@@ -38,7 +38,7 @@ jobs:
       - name: Docker 이미지 빌드 및 푸시 (ARM64)
         uses: docker/build-push-action@v4
         with:
-          context: ./cardcollector 
+          context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/cardcollector:latest
           platforms: linux/arm64
