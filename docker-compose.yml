@@ -1,36 +1,10 @@
+version: '3'
 services:
-  db:
-    image: mysql:8.0
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: cardcollector
-      MYSQL_USER: suhyun444
-      MYSQL_PASSWORD: suhyun
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - app-network
-  app:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    container_name: spring-app
+  my-server:
+    image: cardcollector:latest
     ports:
       - "8080:8080"
+    env_file:
+      - secrets.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/cardcollector
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      #GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      #GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      #GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
-    networks:
-      - app-network
-
-volumes:
-  mysql_data:
-networks:
-  app-network:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://172.30.1.86:3306/cardcollector
