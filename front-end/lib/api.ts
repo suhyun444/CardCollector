@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://suhyun444.duckdns.org';
+const API_BASE_URL = 'https://suhyun444.duckdns.org/card';
 
 const request = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('accessToken');
