@@ -51,7 +51,7 @@ public class MainController {
         String path = request.getRequestURI();
         System.out.println(path);
         System.out.println("Root access");
-        return "forward:/index.html";
+        return "forward:/card.html";
     }
     @GetMapping(value = "/**/{path:[^\\.]*}")
     public String forward(HttpServletRequest request) {
