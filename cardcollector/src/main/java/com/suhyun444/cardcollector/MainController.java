@@ -47,14 +47,16 @@ public class MainController {
     }
     
     @GetMapping("/")
-    public String serveRoot() {
+    public String serveRoot(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        System.out.println(path);
         System.out.println("Root access");
         return "forward:/index.html";
     }
     @GetMapping(value = "/**/{path:[^\\.]*}")
     public String forward(HttpServletRequest request) {
         String path = request.getRequestURI();
-        
+        System.out.println(path);
         return "forward:" + path + ".html";
     }
     
