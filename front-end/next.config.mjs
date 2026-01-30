@@ -10,6 +10,7 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
+  assetPrefix: '/card',
 }
 
 export default nextConfig
