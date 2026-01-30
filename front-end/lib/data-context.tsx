@@ -32,7 +32,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log("Check user login")
     const checkLogin = async () => {
-      if (pathname.startsWith("/login") || pathname.startsWith("/oauth2")) {
+      if (pathname.startsWith("/card/login") || pathname.startsWith("/oauth2")) {
         setIsAuthChecked(true)
         return
       }
