@@ -44,7 +44,7 @@ export default function HomePage() {
               <h1 className="text-4xl font-bold text-foreground mb-2">Payment History Manager</h1>
               <p className="text-muted-foreground text-lg">Track, analyze, and understand your spending patterns</p>
             </div>
-            <Link href="/manage">
+            <Link href="manage">
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
                 Manage Data
@@ -68,7 +68,7 @@ export default function HomePage() {
                 Browse through your payment history, filter by date ranges, and view detailed information for each
                 transaction.
               </p>
-              <Link href="/history">
+              <Link href="history">
                 <Button className="w-full bg-transparent" variant="outline">
                   <CreditCard className="h-4 w-4 mr-2" />
                   View Payment History
@@ -90,7 +90,7 @@ export default function HomePage() {
                 Let AI analyze your spending habits and provide personalized insights to help you manage your finances
                 better.
               </p>
-              <Link href="/analysis">
+              <Link href="analysis">
                 <Button className="w-full bg-transparent" variant="outline">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   View AI Analysis
