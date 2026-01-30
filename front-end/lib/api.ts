@@ -22,7 +22,7 @@ const request = async (url: string, options: RequestInit = {}) => {
     console.log(response);
     if (response.status === 401) {
       localStorage.removeItem('accessToken');
-      window.location.href = '/login/google'; 
+      window.location.href = '/card/login/google'; 
       throw new Error('UnAuthorized');
     }
     throw new Error('API request failed');
