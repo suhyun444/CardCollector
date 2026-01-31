@@ -56,8 +56,14 @@ public class MainController {
     @GetMapping(value = "/**/{path:[^\\.]*}")
     public String forward(HttpServletRequest request) {
         String path = request.getRequestURI();
-        System.out.println(path);
-        return "forward:" + path + ".html";
+        String realPath = path.replace("/card", "");
+
+        if (realPath.isEmpty() || realPath.equals("/")) {
+            return "forward:/card.html";
+        }
+
+        System.out.println("Forwarding to: " + realPath + ".html"); 
+        return "forward:" + realPath + ".html";
     }
     
     @GetMapping("api/user/me")
