@@ -32,8 +32,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log("Check user login")
     const checkLogin = async () => {
+      if(isAuthChecked) return;
       if (pathname.startsWith("/card/login") || pathname.startsWith("/oauth2")) {
-        setIsAuthChecked(true)
         return
       }
 
@@ -57,6 +57,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (!accessToken) {
         setTransactions([]); 
         return; 
+    }
+    if(transactions.length != 0)
+    {
+      return;
     }
     const fetchInitialData = async () => {
         try {
